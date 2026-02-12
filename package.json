@@ -1,28 +1,39 @@
 {
   "name": "rabin-stream",
-  "version": "1.0.0",
-  "description": "Streaming rabin chunker based on rabin-native",
-  "main": "index.js",
-  "dependencies": {
-    "rabin-native": "^1.0.1",
-    "streamx": "^2.6.4"
+  "version": "2.0.0-0",
+  "description": "Streaming Rabin chunker",
+  "exports": {
+    "./package": "./package.json",
+    ".": "./index.js"
   },
-  "devDependencies": {
-    "standard": "^14.3.4",
-    "tape": "^5.0.1",
-    "tar-fs": "^2.1.0"
-  },
+  "files": [
+    "index.js"
+  ],
   "scripts": {
-    "test": "standard && tape test.js"
+    "format": "prettier --write .",
+    "lint": "prettier --check . && lunte",
+    "test": "npm run test:node && npm run test:bare",
+    "test:bare": "brittle-bare --coverage test.js",
+    "test:node": "brittle-node --coverage test.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mafintosh/rabin-stream.git"
+    "url": "git+https://github.com/holepunchto/rabin-stream.git"
   },
-  "author": "Mathias Buus (@mafintosh)",
-  "license": "MIT",
+  "author": "Holepunch",
+  "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/mafintosh/rabin-stream/issues"
+    "url": "https://github.com/holepunchto/rabin-stream/issues"
   },
-  "homepage": "https://github.com/mafintosh/rabin-stream"
+  "homepage": "https://github.com/holepunchto/rabin-stream#readme",
+  "dependencies": {
+    "rabin-native": "^2.0.0-4",
+    "streamx": "^2.23.0"
+  },
+  "devDependencies": {
+    "brittle": "^3.1.0",
+    "lunte": "^1.3.0",
+    "prettier": "^3.6.2",
+    "prettier-config-holepunch": "^2.0.0"
+  }
 }

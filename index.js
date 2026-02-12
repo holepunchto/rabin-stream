@@ -1,46 +1,44 @@
 const { Transform } = require('streamx')
-const Rabin = require('rabin-native')
+const rabin = require('rabin-native')
 
 module.exports = class RabinStream extends Transform {
-  constructor (opts = {}) {
+  constructor(opts = {}) {
     super()
-    this.rabin = new Rabin(opts.min, opts.max, opts.bits)
-    this.overflow = null
+
+    this._rabin = new rabin.Chunker(opts)
+    this._buffer = null
   }
 
-  _transform (data, cb) {
+  _transform(data, cb) {
     if (typeof data === 'string') data = Buffer.from(data)
 
-    const chunks = this.rabin.push(data)
-
-    if (this.overflow !== null) {
-      this.overflow = Buffer.concat([this.overflow, data])
+    if (this._buffer !== null) {
+      this._buffer = Buffer.concat([this._buffer, data])
     } else {
-      this.overflow = data
+      this._buffer = data
     }
 
-    for (let i = 0; i < chunks; i++) {
-      const len = this.rabin.chunks[i]
-      const buf = this.overflow.slice(0, len)
-      this.overflow = this.overflow.slice(len)
-      this.push(buf)
+    const chunks = this._rabin.push(this._buffer)
+
+    for (const chunk of chunks) {
+      const data = this._buffer.slice(0, chunk.length)
+      this._buffer = this._buffer.slice(chunk.length)
+      this.push(data)
     }
 
     cb(null)
   }
 
-  _flush (cb) {
-    const chunks = this.rabin.finalise()
+  _flush(cb) {
+    const chunk = this._rabin.end()
 
-    for (let i = 0; i < chunks; i++) {
-      const len = this.rabin.chunks[i]
-      const buf = this.overflow.slice(0, len)
-      this.overflow = this.overflow.slice(len)
-      this.push(buf)
+    if (chunk) {
+      const data = this._buffer.slice(0, chunk.length)
+      this._buffer = this._buffer.slice(chunk.length)
+      this.push(data)
     }
 
-    if (this.overflow.length) this.push(this.overflow)
-    this.overflow = null
+    this._buffer = null
 
     cb(null)
   }

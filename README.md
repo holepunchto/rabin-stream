@@ -1,23 +1,20 @@
 # rabin-stream
 
-Streaming rabin chunker based on [rabin-native](https://github.com/hyperdivision/rabin-native)
+Streaming Rabin chunker.
 
 ```
-npm install rabin-stream
+npm i rabin-stream
 ```
 
 ## Usage
 
-``` js
+```js
 const RabinStream = require('rabin-stream')
 
-const r = new RabinStream({
-  min: ... // min chunk byteSize
-  max: ... // max chunk byteSize
-})
+const r = new RabinStream()
 
 r.on('data', function (data) {
-  console.log('got chunk!', data)
+  console.log('Chunk', data)
 })
 
 someStream.pipe(r)
@@ -25,4 +22,4 @@ someStream.pipe(r)
 
 ## License
 
-MIT
+Apache-2.0
