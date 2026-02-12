@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/holepunchto/rabin-stream#readme",
   "dependencies": {
-    "rabin-native": "^2.0.0-6",
+    "rabin-native": "^2.0.0",
     "streamx": "^2.23.0"
   },
   "devDependencies": {
