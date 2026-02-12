@@ -6,39 +6,43 @@ module.exports = class RabinStream extends Transform {
     super()
 
     this._rabin = new rabin.Chunker(opts)
-    this._buffer = null
+    this._buffer = []
   }
 
   _transform(data, cb) {
     if (typeof data === 'string') data = Buffer.from(data)
 
-    if (this._buffer !== null) {
-      this._buffer = Buffer.concat([this._buffer, data])
-    } else {
-      this._buffer = data
-    }
+    this._buffer.push(data)
 
-    const chunks = this._rabin.push(this._buffer)
+    const chunks = this._rabin.push(data)
 
     for (const chunk of chunks) {
-      const data = this._buffer.slice(0, chunk.length)
-      this._buffer = this._buffer.slice(chunk.length)
-      this.push(data)
+      let data = this._buffer[0]
+
+      if (data.byteLength < chunk.length) {
+        data = Buffer.concat(this._buffer)
+
+        this._buffer = []
+      } else {
+        this._buffer.pop()
+      }
+
+      this.push(data.subarray(0, chunk.length))
+
+      data = data.subarray(chunk.length)
+
+      if (data.byteLength) this._buffer.unshift(data)
     }
 
     cb(null)
   }
 
   _flush(cb) {
-    const chunk = this._rabin.end()
-
-    if (chunk) {
-      const data = this._buffer.slice(0, chunk.length)
-      this._buffer = this._buffer.slice(chunk.length)
-      this.push(data)
+    if (this._buffer.length) {
+      this.push(Buffer.concat(this._buffer))
     }
 
-    this._buffer = null
+    this._buffer = []
 
     cb(null)
   }
